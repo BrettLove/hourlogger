@@ -88,8 +88,7 @@ namespace sqlite
             SQLiteConnection dbConnection = new SQLiteConnection("Data Source=myDatabase.sqlite;Version=3;");
             dbConnection.Open();
 
-            foreach (Day day in log.days) {
-                Console.WriteLine($"date {day.Date}  hour {day.Hour}");
+                //Console.WriteLine($"date {day.Date}  hour {day.Hour}");
             
                 using (SQLiteTransaction tr = dbConnection.BeginTransaction()) {
 
@@ -97,16 +96,15 @@ namespace sqlite
                         command.Transaction = tr;
                         string sql = "insert into hours (hours, date) values (@hours, @date)";
                         command.CommandText = sql;
+                        foreach (Day day in log.days) {
                         command.Parameters.Add(new SQLiteParameter("@hours", day.Hour));
                         command.Parameters.Add(new SQLiteParameter("@date", day.Date.ToString("yyyy-MM-dd")));
                         rows += command.ExecuteNonQuery();
+                        }
                     }
                     
                 tr.Commit();
-                }
-            }
-
-            
+                }            
             
             //SQLiteCommand command = new SQLiteCommand(sql, dbConnection);
             
