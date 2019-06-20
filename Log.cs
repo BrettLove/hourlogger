@@ -5,6 +5,10 @@ namespace sqlite {
     class Log {
         private List<Day> days_list;
 
+        public Log() {
+            this.days_list = new List<Day>();
+        }
+
         public List<Day> days {
             get {
                 return this.days_list;

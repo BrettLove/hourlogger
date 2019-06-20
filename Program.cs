@@ -18,7 +18,7 @@ namespace sqlite
                 DateTime input_date = getDateTime("Date: ");
                 Day day = new Day(hours, input_date);
                 log.Add(day);
-                //InsertRows(hours, input_date);
+                InsertRows(hours, input_date);
                 Console.WriteLine("Add hours? Hit Enter. Or type 'q' to quit.");
             }
             
