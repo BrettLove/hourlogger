@@ -18,9 +18,12 @@ namespace sqlite
                 DateTime input_date = getDateTime("Date: ");
                 Day day = new Day(hours, input_date);
                 log.Add(day);
-                InsertRows(hours, input_date);
+                Console.WriteLine($"hour is {day.Hour}  date is {day.Date}");
+                //InsertRows(day.Hour, day.Date);
                 Console.WriteLine("Add hours? Hit Enter. Or type 'q' to quit.");
             }
+
+            InsertRows(log);
             
             
             // if (!DateTime.TryParse(Console.ReadLine(), out input_date)) {
@@ -80,23 +83,27 @@ namespace sqlite
             return number;
         }
 
-        static void InsertRows(double hours, DateTime input_date) {
+        static void InsertRows(Log log) {
             int rows = 0;
             SQLiteConnection dbConnection = new SQLiteConnection("Data Source=myDatabase.sqlite;Version=3;");
             dbConnection.Open();
 
-            using (SQLiteTransaction tr = dbConnection.BeginTransaction()) {
+            foreach (Day day in log.days) {
+                Console.WriteLine($"date {day.Date}  hour {day.Hour}");
+            
+                using (SQLiteTransaction tr = dbConnection.BeginTransaction()) {
 
-                using (SQLiteCommand command = dbConnection.CreateCommand()) {
-                    command.Transaction = tr;
-                    string sql = "insert into hours (hours, date) values (@hours, @date)";
-                    command.CommandText = sql;
-                    command.Parameters.Add(new SQLiteParameter("@hours", hours));
-                    command.Parameters.Add(new SQLiteParameter("@date", input_date.ToString("yyyy-MM-dd")));
-                    rows += command.ExecuteNonQuery();
-                }
-
+                    using (SQLiteCommand command = dbConnection.CreateCommand()) {
+                        command.Transaction = tr;
+                        string sql = "insert into hours (hours, date) values (@hours, @date)";
+                        command.CommandText = sql;
+                        command.Parameters.Add(new SQLiteParameter("@hours", day.Hour));
+                        command.Parameters.Add(new SQLiteParameter("@date", day.Date.ToString("yyyy-MM-dd")));
+                        rows += command.ExecuteNonQuery();
+                    }
+                    
                 tr.Commit();
+                }
             }
 
             

@@ -9,5 +9,17 @@ namespace sqlite {
             this.hour = hour;
             this.date = date;
         }
+
+        public double Hour {
+            get {
+                return this.hour;
+            }
+        }
+
+        public DateTime Date {
+            get {
+                return this.date;
+            }
+        }
     }
 }
