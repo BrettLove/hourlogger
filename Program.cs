@@ -5,6 +5,9 @@ namespace sqlite
 {
     class Program
     {
+
+        static private string year = "2019";
+
         static void Main(string[] args)
         {
 
@@ -12,10 +15,11 @@ namespace sqlite
             Console.WriteLine("Add hours? Hit Enter. Or type 'q' to quit.");
 
             Log log = new Log();
+            
 
             while (Console.ReadLine().ToLower() != "q") {
                 double hours = getPositiveDouble("Hours: ");
-                DateTime input_date = getDateTime("Date: ");
+                DateTime input_date = getDateTime("Date (mm/dd): ");
                 Day day = new Day(hours, input_date);
                 log.Add(day);
                 //Console.WriteLine($"hour is {day.Hour}  date is {day.Date}");
@@ -70,7 +74,7 @@ namespace sqlite
             DateTime input_date;
             do {
                 Console.Write(message);
-            } while (!DateTime.TryParse(Console.ReadLine(), out input_date));
+            } while (!DateTime.TryParse(Console.ReadLine() + "/" + year, out input_date));
             return input_date;
         }
 
