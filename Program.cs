@@ -12,23 +12,51 @@ namespace sqlite
         {
 
             //SQLiteConnection.CreateFile("myDatabase.sqlite");
-            Console.WriteLine("Add hours? Hit Enter. Or type 'q' to quit.");
 
-            Log log = new Log();
-            
 
-            while (Console.ReadLine().ToLower() != "q") {
-                double hours = getPositiveDouble("Hours: ");
-                DateTime input_date = getDateTime("Date (mm/dd): ");
-                Day day = new Day(hours, input_date);
-                log.Add(day);
-                //Console.WriteLine($"hour is {day.Hour}  date is {day.Date}");
-                //InsertRows(day.Hour, day.Date);
-                Console.WriteLine("Add hours? Hit Enter. Or type 'q' to quit.");
+//          view log without adding hours OR 
+//          add hours (in a loop) then either:
+//              save and view log
+//              quit without saving
+
+
+            Console.WriteLine("Hour Logger");
+            Console.WriteLine();
+            Console.Write("View log (l), add hours (h), or quit (q)  ");
+
+            string choice = Console.ReadLine().ToLower();
+
+            while (choice != "q") {
+                switch (choice) {
+                    case "l":
+                        // view log without adding hours
+                        Console.WriteLine();
+                        //Console.WriteLine("You are viewing the log without adding hours.");
+                        viewlog();
+                        Console.Write("View log (l), add hours (h), or quit (q)  ");
+                        choice = Console.ReadLine().ToLower();
+                        break;
+                    
+                    case "h":
+                        // add hours (in a loop) then either:
+                        // save and view log
+                        // or quit without saving
+                        //Console.WriteLine("You are adding hours.");
+                        addhours();
+                        Console.Write("View log (l), add hours (h), or quit (q)  ");
+                        choice = Console.ReadLine().ToLower();
+                        break;
+
+                    default: 
+                        Console.WriteLine("Could not understand your choice.");
+                        Console.Write("View log (l), add hours (h), or quit (q)  ");
+                        choice = Console.ReadLine().ToLower();
+                        break;
+                }
             }
 
-            InsertRows(log);
-            
+            // Console.WriteLine("Add hours? Hit Enter. Or type 'q' to quit.");    
+
             
             // if (!DateTime.TryParse(Console.ReadLine(), out input_date)) {
             //     Console.WriteLine("Date didn't convert.");
@@ -36,38 +64,6 @@ namespace sqlite
 
             //DateTime input_date = new DateTime(2016, 7, 15);
 
-            
-            SQLiteConnection dbConnection = new SQLiteConnection("Data Source=myDatabase.sqlite;Version=3;");
-            dbConnection.Open();
-
-            string sql = "select * from hours order by date asc";
-            SQLiteCommand command = new SQLiteCommand(sql, dbConnection);
-            SQLiteDataReader reader = command.ExecuteReader();
-
-            double total_hours = 0;
-
-            Console.WriteLine();
-            Console.WriteLine("Date:\t\tHours:");
-            while (reader.Read()) {
-                Console.WriteLine(Convert.ToDateTime(reader["date"]).ToString("M/dd/yyyy")
-                 + "\t" +
-                reader["hours"]);
-                total_hours += (double)reader["hours"];
-            }
-
-            Console.WriteLine($"Total hours: {total_hours}");
-
-            sql = "select sum(hours) as total_hours from hours";
-            command = new SQLiteCommand(sql, dbConnection);
-
-            reader = command.ExecuteReader();
-
-            reader.Read();
-
-            Console.WriteLine("Total hours: {0}", reader["total_hours"]);
-
-
-            dbConnection.Close();
         }
 
         static DateTime getDateTime(string message) {
@@ -85,6 +81,65 @@ namespace sqlite
                 Double.TryParse(Console.ReadLine(), out number);
             } while (number <= 0);
             return number;
+        }
+
+        static void viewlog() {
+            Console.WriteLine("Log");
+            Console.WriteLine("------------");
+
+            SQLiteConnection dbConnection = new SQLiteConnection("Data Source=myDatabase.sqlite;Version=3;");
+            dbConnection.Open();
+
+            string sql = "select date, hours from hours order by date asc";
+            using (SQLiteCommand command = new SQLiteCommand(sql, dbConnection)) {
+                using (SQLiteDataReader reader = command.ExecuteReader()) {
+
+                    double total_hours = 0;
+
+                    //Console.WriteLine();
+                    Console.WriteLine("Date:\t\tHours:");
+                    while (reader.Read()) {
+                        Console.WriteLine(Convert.ToDateTime(reader["date"]).ToString("M/dd/yyyy")
+                        + "\t" +
+                        reader["hours"]);
+                        total_hours += (double)reader["hours"];
+                    }
+
+                    Console.WriteLine($"Total hours:\t{total_hours}");
+                }
+            }
+
+            sql = "select sum(hours) as total_hours from hours";
+            using (SQLiteCommand command = new SQLiteCommand(sql, dbConnection)) {
+                using (SQLiteDataReader reader = command.ExecuteReader()) {
+                    reader.Read();
+                    Console.WriteLine("Total hours:\t{0}", reader["total_hours"]);
+                }
+            }
+            
+            //reader.Close();
+
+            dbConnection.Close();
+
+            Console.WriteLine();
+        }
+
+        static void addhours() {
+            Console.WriteLine();
+            Log log = new Log();
+            
+            do {
+                double hours = getPositiveDouble("Hours: ");
+                DateTime input_date = getDateTime("Date (mm/dd): ");
+                Day day = new Day(hours, input_date);
+                log.Add(day);
+                //Console.WriteLine($"hour is {day.Hour}  date is {day.Date}");
+                //InsertRows(day.Hour, day.Date);
+                Console.WriteLine();
+                Console.Write("Add more hours? Hit Enter. Or type 'q' to quit.  ");
+            } while (Console.ReadLine().ToLower() != "q");
+
+            InsertRows(log);
         }
 
         static void InsertRows(Log log) {
@@ -115,7 +170,7 @@ namespace sqlite
             Console.WriteLine($"Inserted {rows} rows.");
             dbConnection.Close();
             
-            
+            Console.WriteLine();
         }
     }
 }
