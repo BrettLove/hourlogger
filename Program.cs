@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.SQLite;
 
-namespace sqlite
+namespace hourlogger
 {
     class Program
     {

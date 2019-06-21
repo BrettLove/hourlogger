@@ -1,6 +1,6 @@
 using System;
 
-namespace sqlite {
+namespace hourlogger {
     class Day {
         private double hour;
         private DateTime date;

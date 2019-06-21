@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace sqlite {
+namespace hourlogger {
     class Log {
         private List<Day> days_list;
 
