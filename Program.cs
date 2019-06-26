@@ -6,12 +6,13 @@ namespace hourlogger
 {
     class Program
     {
-        static private string DatabaseFileName = "myDatabase.sqlite";
+        static private string DatabaseFileName;
         static private string year = "2019";
 
         static void Main(string[] args)
         {
 
+            Console.WriteLine();
             Console.WriteLine("Hour Logger");
             Console.WriteLine();
 
@@ -99,13 +100,14 @@ namespace hourlogger
             // select a file by i or create a new one
         }
 
-        static int getFileNum(string message, int numFiles) {
+        static int getFileNum(string message, int length) {
             int fileNum = -1;
             Console.WriteLine("Choose a file by number."); 
             do {
                 Console.Write(message);
                 Int32.TryParse(Console.ReadLine(), out fileNum);
-            } while (fileNum < 0 && fileNum > numFiles);
+                Console.WriteLine("File Chosen is {0}", fileNum);
+            } while (fileNum < 0 || fileNum > length - 1);
 
             return fileNum;
         }
