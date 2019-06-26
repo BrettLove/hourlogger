@@ -12,15 +12,18 @@ namespace hourlogger
         static void Main(string[] args)
         {
 
+            Console.WriteLine("Hour Logger");
+            Console.WriteLine();
+
             // Add a way to load logs, create new log file, and perhaps delete
             // SQLiteConnection.    CreateFile(DatabaseFileName);
 
             string dbFileName = getDbFileName();
             DatabaseFileName = @".\sql\" + dbFileName;
-            Console.WriteLine(DatabaseFileName);
 
-            Console.WriteLine("Hour Logger");
-            Console.WriteLine();
+            // debug
+            //Console.WriteLine(DatabaseFileName);
+
             Console.Write("View log (l), add hours (h), or quit (q)  ");
 
             string choice = Console.ReadLine().ToLower();
@@ -46,6 +49,7 @@ namespace hourlogger
 
                     default: 
                         Console.WriteLine("Could not understand your choice.");
+                        Console.WriteLine();
                         Console.Write("View log (l), add hours (h), or quit (q)  ");
                         choice = Console.ReadLine().ToLower();
                         break;
@@ -75,16 +79,21 @@ namespace hourlogger
 
             sqlitefiles = dir.GetFiles("*.sqlite");
             
-            Console.WriteLine("Total number of sqlite files: {0}", sqlitefiles.Length);
+            // debug
+            //Console.WriteLine("Total number of sqlite files: {0}", sqlitefiles.Length);
 
-            Console.WriteLine();
+            //Console.WriteLine();
 
             for (int i = 0; i < sqlitefiles.Length; i++) {
                 Console.WriteLine($"{i}. {sqlitefiles[i].Name}");
             }
 
+            Console.WriteLine();
+            
             int fileNum = getFileNum("Number:  ", sqlitefiles.Length);
-
+            
+            Console.WriteLine();
+            
             return sqlitefiles[fileNum].Name;
 
             // select a file by i or create a new one
@@ -96,24 +105,38 @@ namespace hourlogger
             do {
                 Console.Write(message);
                 Int32.TryParse(Console.ReadLine(), out fileNum);
-            } while (fileNum <= 0 && fileNum > numFiles);
+            } while (fileNum < 0 && fileNum > numFiles);
 
             return fileNum;
         }
 
         static DateTime getDateTime(string message) {
-            DateTime input_date;
+            DateTime input_date = default(DateTime);
+            string line = "";
             do {
                 Console.Write(message);
-            } while (!DateTime.TryParse(Console.ReadLine() + "/" + year, out input_date));
+                line = Console.ReadLine();
+                if (line == "q") {
+                    Console.WriteLine();
+                    return input_date;
+                }
+                DateTime.TryParse(line + "/" + year, out input_date);
+            } while (input_date == default(DateTime));
             return input_date;
         }
 
         static double getPositiveDouble(string message) {
-            double number;
+            double number = 0;
+            string line = "";
             do {
                 Console.Write(message);
-                Double.TryParse(Console.ReadLine(), out number);
+                line = Console.ReadLine();
+                if (line == "q") {
+                    Console.WriteLine();
+                    return number;
+                }
+                Double.TryParse(line, out number);
+
             } while (number <= 0);
             return number;
         }
@@ -163,14 +186,22 @@ namespace hourlogger
             
             do {
                 double hours = getPositiveDouble("Hours: ");
+                if (hours == 0) {
+                    break;
+                }
                 DateTime input_date = getDateTime("Date (mm/dd): ");
+                if (input_date == default(DateTime)) {
+                    break;
+                }
                 Day day = new Day(hours, input_date);
                 log.Add(day);
                 Console.WriteLine();
                 Console.Write("Add more hours? Hit Enter. Or type 'q' to quit.  ");
             } while (Console.ReadLine().ToLower() != "q");
 
-            InsertRows(log);
+            if (log.days.Count > 0) {
+                InsertRows(log);
+            }
         }
 
         static void InsertRows(Log log) {
@@ -199,6 +230,7 @@ namespace hourlogger
                     }            
                 
             }
+            Console.WriteLine();
             Console.WriteLine($"Inserted {rows} rows.");
             Console.WriteLine();
         }
