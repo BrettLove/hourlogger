@@ -86,7 +86,7 @@ namespace hourlogger
             //Console.WriteLine();
 
             for (int i = 0; i < sqlitefiles.Length; i++) {
-                Console.WriteLine($"{i}. {sqlitefiles[i].Name}");
+                Console.WriteLine($"{i+1}. {sqlitefiles[i].Name}");
             }
 
             Console.WriteLine();
@@ -95,19 +95,20 @@ namespace hourlogger
             
             Console.WriteLine();
             
-            return sqlitefiles[fileNum].Name;
+            return sqlitefiles[fileNum-1].Name;
 
             // select a file by i or create a new one
         }
 
         static int getFileNum(string message, int length) {
-            int fileNum = -1;
+            int fileNum = 0;
             Console.WriteLine("Choose a file by number."); 
             do {
                 Console.Write(message);
                 Int32.TryParse(Console.ReadLine(), out fileNum);
-                Console.WriteLine("File Chosen is {0}", fileNum);
-            } while (fileNum < 0 || fileNum > length - 1);
+                // debug
+                //Console.WriteLine("File Chosen is {0}", fileNum);
+            } while (fileNum <= 0 || fileNum > length);
 
             return fileNum;
         }
