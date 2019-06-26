@@ -15,36 +15,10 @@ namespace hourlogger
             // Add a way to load logs, create new log file, and perhaps delete
             // SQLiteConnection.    CreateFile(DatabaseFileName);
 
-            DirectoryInfo dir = new DirectoryInfo(@".\sql");
-            if (!dir.Exists) {
-                dir.Create();
-                Console.WriteLine("Directory successfully created.");
-            }
+            string dbFileName = getDbFileName();
+            DatabaseFileName = @".\sql\" + dbFileName;
+            Console.WriteLine(DatabaseFileName);
 
-            FileInfo[] sqlitefiles = dir.GetFiles("*.sqlite");
-            
-            if (sqlitefiles.Length == 0) {
-                Console.WriteLine("No database files found. Creating a new one.  Give it a name.");
-                Console.WriteLine("Don't include the .sqlite extension.");
-                Console.Write("Name:  ");
-                string filename = Console.ReadLine();
-                    SQLiteConnection.CreateFile(@".\sql\" + filename + ".sqlite");
-                DatabaseFileName = filename + ".sqlite";
-            }
-
-            sqlitefiles = dir.GetFiles("*.sqlite");
-            
-            Console.WriteLine("Total number of sqlite files: {0}", sqlitefiles.Length);
-
-            Console.WriteLine();
-
-            for (int i = 0; i < sqlitefiles.Length; i++) {
-                Console.WriteLine($"{i}. {sqlitefiles[i].Name}");
-            }
-
-            // select a file by i or create a new one
-
-/* 
             Console.WriteLine("Hour Logger");
             Console.WriteLine();
             Console.Write("View log (l), add hours (h), or quit (q)  ");
@@ -78,7 +52,53 @@ namespace hourlogger
                 }
             }
 
-*/
+        }
+
+        static string getDbFileName() {
+            DirectoryInfo dir = new DirectoryInfo(@".\sql");
+            if (!dir.Exists) {
+                dir.Create();
+                Console.WriteLine("Directory successfully created.");
+            }
+
+            FileInfo[] sqlitefiles = dir.GetFiles("*.sqlite");
+            
+            if (sqlitefiles.Length == 0) {
+                Console.WriteLine("No database files found. Creating a new one.  Give it a name.");
+                Console.WriteLine("Don't include the .sqlite extension.");
+                Console.Write("Name:  ");
+                string filename = Console.ReadLine();
+                    SQLiteConnection.CreateFile(@".\sql\" + filename + ".sqlite");
+                DatabaseFileName = @".\sql\" + filename + ".sqlite";
+                createDbSchema(DatabaseFileName);
+            }
+
+            sqlitefiles = dir.GetFiles("*.sqlite");
+            
+            Console.WriteLine("Total number of sqlite files: {0}", sqlitefiles.Length);
+
+            Console.WriteLine();
+
+            for (int i = 0; i < sqlitefiles.Length; i++) {
+                Console.WriteLine($"{i}. {sqlitefiles[i].Name}");
+            }
+
+            int fileNum = getFileNum("Number:  ", sqlitefiles.Length);
+
+            return sqlitefiles[fileNum].Name;
+
+            // select a file by i or create a new one
+        }
+
+        static int getFileNum(string message, int numFiles) {
+            int fileNum = -1;
+            Console.WriteLine("Choose a file by number."); 
+            do {
+                Console.Write(message);
+                Int32.TryParse(Console.ReadLine(), out fileNum);
+            } while (fileNum <= 0 && fileNum > numFiles);
+
+            return fileNum;
         }
 
         static DateTime getDateTime(string message) {
@@ -182,5 +202,24 @@ namespace hourlogger
             Console.WriteLine($"Inserted {rows} rows.");
             Console.WriteLine();
         }
+
+        static void createDbSchema (string dbFileName) {
+            using (SQLiteConnection dbConnection = new SQLiteConnection("Data Source =" + dbFileName + ";Version=3;")) {
+                
+                dbConnection.Open();
+
+                using (SQLiteCommand command = dbConnection.CreateCommand()) {
+
+                    string sql = "create table hours (hours real, date date)";
+                    command.CommandText = sql;
+                    command.ExecuteNonQuery();
+                }
+
+            }
+
+            Console.WriteLine("Created table");
+
+        }
+
     }
 }
