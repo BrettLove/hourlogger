@@ -1,19 +1,50 @@
 ﻿using System;
 using System.Data.SQLite;
+using System.IO;
 
 namespace hourlogger
 {
     class Program
     {
-        private const string DatabaseFileName = "myDatabase.sqlite";
+        static private string DatabaseFileName = "myDatabase.sqlite";
         static private string year = "2019";
 
         static void Main(string[] args)
         {
 
             // Add a way to load logs, create new log file, and perhaps delete
-            // SQLiteConnection.CreateFile(DatabaseFileName);
+            // SQLiteConnection.    CreateFile(DatabaseFileName);
 
+            DirectoryInfo dir = new DirectoryInfo(@".\sql");
+            if (!dir.Exists) {
+                dir.Create();
+                Console.WriteLine("Directory successfully created.");
+            }
+
+            FileInfo[] sqlitefiles = dir.GetFiles("*.sqlite");
+            
+            if (sqlitefiles.Length == 0) {
+                Console.WriteLine("No database files found. Creating a new one.  Give it a name.");
+                Console.WriteLine("Don't include the .sqlite extension.");
+                Console.Write("Name:  ");
+                string filename = Console.ReadLine();
+                    SQLiteConnection.CreateFile(@".\sql\" + filename + ".sqlite");
+                DatabaseFileName = filename + ".sqlite";
+            }
+
+            sqlitefiles = dir.GetFiles("*.sqlite");
+            
+            Console.WriteLine("Total number of sqlite files: {0}", sqlitefiles.Length);
+
+            Console.WriteLine();
+
+            for (int i = 0; i < sqlitefiles.Length; i++) {
+                Console.WriteLine($"{i}. {sqlitefiles[i].Name}");
+            }
+
+            // select a file by i or create a new one
+
+/* 
             Console.WriteLine("Hour Logger");
             Console.WriteLine();
             Console.Write("View log (l), add hours (h), or quit (q)  ");
@@ -47,6 +78,7 @@ namespace hourlogger
                 }
             }
 
+*/
         }
 
         static DateTime getDateTime(string message) {
