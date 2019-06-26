@@ -25,7 +25,7 @@ namespace hourlogger
             // debug
             //Console.WriteLine(DatabaseFileName);
 
-            Console.Write("View log (l), add hours (h), or quit (q)  ");
+            Console.Write("View log (l), add hours (h), change database (c), or quit (q)  ");
 
             string choice = Console.ReadLine().ToLower();
 
@@ -35,7 +35,7 @@ namespace hourlogger
                         // view log without adding hours
                         Console.WriteLine();
                         viewlog();
-                        Console.Write("View log (l), add hours (h), or quit (q)  ");
+                        Console.Write("View log (l), add hours (h), change database (c), or quit (q)  ");
                         choice = Console.ReadLine().ToLower();
                         break;
                     
@@ -44,14 +44,23 @@ namespace hourlogger
                         //      save and view log
                         //      or quit without saving
                         addhours();
-                        Console.Write("View log (l), add hours (h), or quit (q)  ");
+                        Console.Write("View log (l), add hours (h), change database (c), or quit (q)  ");
+                        choice = Console.ReadLine().ToLower();
+                        break;
+
+                    case "c":
+                        dbFileName = getDbFileName();
+                        DatabaseFileName = @".\sql\" + dbFileName;
+                        Console.WriteLine($"Database has been changed to {DatabaseFileName}");
+                        Console.WriteLine();
+                        Console.Write("View log (l), add hours (h), change database (c), or quit (q)  ");
                         choice = Console.ReadLine().ToLower();
                         break;
 
                     default: 
                         Console.WriteLine("Could not understand your choice.");
                         Console.WriteLine();
-                        Console.Write("View log (l), add hours (h), or quit (q)  ");
+                        Console.Write("View log (l), add hours (h), change database (c), or quit (q)  ");
                         choice = Console.ReadLine().ToLower();
                         break;
                 }
